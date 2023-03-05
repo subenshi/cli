@@ -4,6 +4,9 @@ const pm2 = require('pm2');
 const tail = require('./helpers/tail.js');
 const fsHelper = require('./helpers/fs.js');
 const index = require('./index.js');
+const components = require('./helpers/components.js');
+const cli = require('./helpers/cli.js');
+const pm2Helper = require('./helpers/pm2.js');
 
 // List of pm2 ids
 let pmIds = [];
@@ -37,30 +40,25 @@ const connect = () => {
  * User input when starting all services
  * @returns {Promise} - Promise that resolves when the user has answered
  */
-const start = () => {
+const start = async () => {
   // Ignore if there are services running
-  // if (pmIds.length) return Promise.resolve();
+  if (pmIds.length) return Promise.resolve();
 
-  // // Duplicate the ecosystem object
-  // const ecs = Object.assign({}, ecosystem);
+  const comps = await components.inspect();
+  const ecosystem = pm2Helper.ecosystem(comps);
 
-  // // Ensure that the cwd is correct
-  // ecs.apps.forEach((app) => {
-  //   app.cwd = fsHelper.project([app.cwd])
-  // })
-
-  // // Start all services based on the ecosystem file
-  // return new Promise((resolve, reject) => {
-  //   pm2.start(ecs, (err, apps) => {
-  //     if (err) {
-  //       reject(err)
-  //     }
-  //     pmIds = apps.map((app) => {
-  //       return app.pm2_env.pm_id
-  //     })
-  //     resolve()
-  //   })
-  // })
+  // Start all services based on the ecosystem file
+  return new Promise((resolve, reject) => {
+    pm2.start(ecosystem, (err, apps) => {
+      if (err) {
+        reject(err)
+      }
+      pmIds = apps.map((app) => {
+        return app.pm2_env.pm_id
+      })
+      resolve()
+    })
+  })
 }
 
 /**

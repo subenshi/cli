@@ -37,10 +37,19 @@ const deleteFile = (deletePath) => fs.rm(deletePath, {recursive: false, force: t
 const listFolders = (originalPath) => {
   return readdir(originalPath, {withFileTypes: true})
     .then((files) => {
-      return files.filter((file) => file.isDirectory()).map((file) => {
-        return path.join(originalPath, file.name)
-      });
+      return files
+        .filter((file) => file.isDirectory() || file.isSymbolicLink()).map((file) => {
+          return path.join(originalPath, file.name)
+        });
     })
+}
+const readJson = (path) => {
+  try {
+    return JSON.parse(fs.readFileSync(path, 'utf8'));
+  }
+  catch (e) {
+    return null;
+  }
 }
 
 // Exports
@@ -52,5 +61,6 @@ module.exports.cli = cli
 module.exports.project = project
 module.exports.pathExists = pathExists
 module.exports.clonePath = clonePath
-module.exports.deleteFile = deleteFile
+module.exports.readJson = readJson
 module.exports.listFolders = listFolders
+module.exports.deleteFile = deleteFile

@@ -21,7 +21,7 @@ const openDocs = () => {
 }
 
 const clearScreen = () => {
-  process.stdout.write("\u001b[2J\u001b[0;0H");
+  // process.stdout.write("\u001b[2J\u001b[0;0H");
 }
 
 const getPackageInfo = packagePath => {
@@ -38,15 +38,19 @@ const getPackageInfo = packagePath => {
  * @returns {Promise} - Promise that resolves with the user input
  */
 const waitForKey = (query) => {
-  rl = readline.emitKeypressEvents(process.stdin);
-  process.stdin.setRawMode(true);
-
-  return new Promise((resolve, reject) => {
-    process.stdin.on('keypress', (ch, key) => {
-      resolve((ch || '').trim().toLowerCase());
+  if (!rl) {
+    rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
     });
-    
-  });
+  }
+
+  // Return promise when user input is received
+  return new Promise((resolve, reject) => {
+    rl.question(query || '', (answer) => {
+      resolve(answer);
+    });
+  })
 }
 
 module.exports.info = info;

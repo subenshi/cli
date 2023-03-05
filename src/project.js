@@ -9,32 +9,7 @@ const fsHelpers = require('./helpers/fs.js');
 const cli = require('./helpers/cli.js');
 const download = require('./helpers/download.js');
 const index = require('./index.js');
-
-const inspectComponents = async () => {
-  // Get components
-  const components = await fsHelpers.listFolders( fsHelpers.project() );
-  let inspection = []
-
-  for (const component of components) {
-    const componentPath = fsHelpers.project([component])
-
-    let packageInfo = cli.getPackageInfo(componentPath);
-    if (!packageInfo) {
-      continue;
-    }
-
-    packageInfo._git = await download.status(componentPath);
-
-    inspection.push({
-      name: packageInfo.name,
-      version: packageInfo.version,
-      ahead: packageInfo._git.ahead,
-      behind: packageInfo._git.behind,
-      branch: packageInfo._git.current,
-    })
-  }
-  return inspection;
-}
+const components = require('./helpers/components.js');
 
 /**
  * Main menu
@@ -56,8 +31,9 @@ const main = async back => {
     },
     new inquirer.Separator(),
     {
-      name: 'Setup project',
-      value: 'install',
+      name: 'Stop all services',
+      value: 'stop.all',
+      when: localServices.getPmIds().length,
     },
     {
       name: 'Start all services',
@@ -65,6 +41,10 @@ const main = async back => {
     },
     // Add separator
     new inquirer.Separator(),
+    {
+      name: 'Setup project',
+      value: 'install',
+    },
     {
       name: 'Advanced',
       value: 'advanced',
@@ -75,7 +55,7 @@ const main = async back => {
     }
   ];
 
-  await inspectComponents().then((components) => {
+  await components.inspect().then((components) => {
     if (components.length) {
       // Add separator
       choices.unshift(new inquirer.Separator());
@@ -98,14 +78,6 @@ const main = async back => {
       })
     })
   })
-
-  // Add stop all option if there are services running
-  if (localServices.getPmIds().length) {
-    choices.splice(3, 0, {
-      name: '⏹️ Stop all services',
-      value: 'stop.all',
-    });
-  }
 
   // Ask for user input
   inquirer
@@ -187,7 +159,7 @@ const advanced = async () => {
 
 const setupProject = async () => {
 
-  const inspection = await inspectComponents();
+  const inspection = await components.inspect();
 
   let choices = [
     {
