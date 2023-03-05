@@ -1,0 +1,22 @@
+{
+  "name": "subenshi-cli",
+  "version": "0.0.10",
+  "main": "./src/index.js",
+  "license": "MIT",
+  "website": "https://subenshi.github.io",
+  "bin": {
+    "subenshi": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "cli-table": "^0.3.11",
+    "inquirer": "^8.0.0",
+    "nodemon": "^2.0.21",
+    "open": "^8.4.2",
+    "pm2": "^5.2.2",
+    "simple-git": "^3.17.0"
+  }
+}
