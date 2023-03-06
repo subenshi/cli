@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "cli-table": "^0.3.11",
-    "inquirer": "^8.0.0",
+    "inquirer": "^9.1.4",
     "nodemon": "^2.0.21",
     "open": "^8.4.2",
     "pm2": "^5.2.2",
